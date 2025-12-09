@@ -124,7 +124,8 @@ pipeline {
                 sh 'docker rm events-spring-app events-mysql || true'
                 echo 'Démarrage de l application et de la base de données via Docker Compose'
                 // Démarrer uniquement les services nécessaires (events-app et mysql)
-                sh 'docker compose up -d --build events-app mysql' 
+                // Utiliser --no-recreate pour ne pas recréer les conteneurs existants (Prometheus, Grafana)
+                sh 'docker compose up -d --build --no-recreate events-app mysql' 
             }
         }
     }
