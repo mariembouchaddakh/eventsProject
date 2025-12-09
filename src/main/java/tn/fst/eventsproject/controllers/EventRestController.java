@@ -56,6 +56,9 @@ public class EventRestController {
             @PathVariable("d1") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date_debut, 
             @PathVariable("d2") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date_fin){
         List<Logistics> logisticsList = eventServices.getLogisticsDates(date_debut, date_fin);
+        if(logisticsList == null || logisticsList.isEmpty()){
+            return new ArrayList<>();
+        }
         return logisticsList.stream()
                 .map(eventMapper::toDTO)
                 .collect(Collectors.toList());

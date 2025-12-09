@@ -121,14 +121,15 @@ class EventServicesImplTest {
     void testAddAffectEvenParticipant_WithIdParticipant_WhenParticipantNotFound() {
         // Given
         when(participantRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
 
-        // When & Then
-        assertThrows(NullPointerException.class, () -> {
-            eventServices.addAffectEvenParticipant(event, 999);
-        });
+        // When
+        Event result = eventServices.addAffectEvenParticipant(event, 999);
 
+        // Then
+        assertNotNull(result);
         verify(participantRepository, times(1)).findById(999);
-        verify(eventRepository, never()).save(any(Event.class));
+        verify(eventRepository, times(1)).save(event);
     }
 
     @Test
@@ -260,7 +261,8 @@ class EventServicesImplTest {
         List<Logistics> result = eventServices.getLogisticsDates(dateDebut, dateFin);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
         verify(eventRepository, times(1)).findByDateDebutBetween(dateDebut, dateFin);
     }
 

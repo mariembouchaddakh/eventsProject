@@ -236,11 +236,13 @@ class EventRestControllerTest {
         LocalDate dateDebut = LocalDate.of(2024, 1, 1);
         LocalDate dateFin = LocalDate.of(2024, 1, 31);
 
-        when(eventServices.getLogisticsDates(dateDebut, dateFin)).thenReturn(null);
+        when(eventServices.getLogisticsDates(dateDebut, dateFin)).thenReturn(new ArrayList<>());
 
         // When & Then
         mockMvc.perform(get("/event/getLogs/2024-01-01/2024-01-31"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
 
         verify(eventServices, times(1)).getLogisticsDates(dateDebut, dateFin);
     }
