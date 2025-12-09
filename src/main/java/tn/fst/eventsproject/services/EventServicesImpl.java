@@ -34,21 +34,7 @@ public class EventServicesImpl implements IEventServices{
     @Override
     public Event addAffectEvenParticipant(Event event, int idParticipant) {
         Participant participant = participantRepository.findById(idParticipant).orElse(null);
-        if(participant.getEvents() == null){
-            Set<Event> events = new HashSet<>();
-            events.add(event);
-            participant.setEvents(events);
-        }else {
-            participant.getEvents().add(event);
-        }
-        return eventRepository.save(event);
-    }
-
-    @Override
-    public Event addAffectEvenParticipant(Event event) {
-        Set<Participant> participants = event.getParticipants();
-        for(Participant aParticipant:participants){
-            Participant participant = participantRepository.findById(aParticipant.getIdPart()).orElse(null);
+        if(participant != null){
             if(participant.getEvents() == null){
                 Set<Event> events = new HashSet<>();
                 events.add(event);
@@ -61,16 +47,38 @@ public class EventServicesImpl implements IEventServices{
     }
 
     @Override
+    public Event addAffectEvenParticipant(Event event) {
+        Set<Participant> participants = event.getParticipants();
+        if(participants != null && !participants.isEmpty()){
+            for(Participant aParticipant:participants){
+                Participant participant = participantRepository.findById(aParticipant.getIdPart()).orElse(null);
+                if(participant != null){
+                    if(participant.getEvents() == null){
+                        Set<Event> events = new HashSet<>();
+                        events.add(event);
+                        participant.setEvents(events);
+                    }else {
+                        participant.getEvents().add(event);
+                    }
+                }
+            }
+        }
+        return eventRepository.save(event);
+    }
+
+    @Override
     public Logistics addAffectLog(Logistics logistics, String descriptionEvent) {
       Event event = eventRepository.findByDescription(descriptionEvent);
-      if(event.getLogistics() == null){
-          Set<Logistics> logisticsSet = new HashSet<>();
-          logisticsSet.add(logistics);
-          event.setLogistics(logisticsSet);
-          eventRepository.save(event);
-      }
-      else{
-          event.getLogistics().add(logistics);
+      if(event != null){
+          if(event.getLogistics() == null){
+              Set<Logistics> logisticsSet = new HashSet<>();
+              logisticsSet.add(logistics);
+              event.setLogistics(logisticsSet);
+              eventRepository.save(event);
+          }
+          else{
+              event.getLogistics().add(logistics);
+          }
       }
         return logisticsRepository.save(logistics);
     }
