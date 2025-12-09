@@ -122,10 +122,11 @@ pipeline {
                 // Arrêter uniquement les conteneurs events-app et mysql, sans toucher à Prometheus et Grafana
                 sh 'docker stop events-spring-app events-mysql || true'
                 sh 'docker rm events-spring-app events-mysql || true'
-                echo 'Démarrage de l application et de la base de données via Docker Compose'
-                // Démarrer uniquement les services nécessaires (events-app et mysql)
-                // Utiliser --no-recreate pour ne pas recréer les conteneurs existants (Prometheus, Grafana)
-                sh 'docker compose up -d --build --no-recreate events-app mysql' 
+                echo 'Démarrage de l application et de la base de données'
+                // Utiliser docker compose create puis start pour éviter de créer Prometheus/Grafana
+                // Créer uniquement mysql et events-app
+                sh 'docker compose create mysql events-app || true'
+                sh 'docker compose start mysql events-app || docker compose up -d --build mysql events-app'
             }
         }
     }
