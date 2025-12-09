@@ -69,3 +69,6 @@ application-dev.properties
 *.bak
 *.swp
 *~.nib
+
+# Documentation (rapports)
+RAPPORT-ETAPES.md

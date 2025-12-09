@@ -3,14 +3,11 @@ pipeline {
 
     // 1. Définir l'environnement pour les étapes Docker
     environment {
-        // Remplacez 'mariembouchaddakh' par votre ID DockerHub si nécessaire
+        // Remplacez mariembouchaddakh par votre ID DockerHub si necessaire
         DOCKER_REPO = 'mariembouchaddakh/events-project'
         
-        // 'docker-hub-credentials' est l'ID de l'identifiant DockerHub créé dans Jenkins
-        DOCKER_CREDENTIAL_ID = 'docker-hub-credentials' 
-        
-        // Récupérer la version du projet directement depuis le pom.xml
-        APP_VERSION = sh(returnStdout: true, script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout').trim()
+        // docker-hub-credentials est l ID de l identifiant DockerHub cree dans Jenkins
+        DOCKER_CREDENTIAL_ID = 'docker-hub-credentials'
     }
 
     stages {
@@ -23,14 +20,31 @@ pipeline {
             }
         }
 
-        // 2. Compilation et création du JAR
-        stage('Compilation & Package Maven') {
+        // 2. Récupérer la version du projet
+        stage('Get Version') {
             steps {
-                echo "Building code with Maven and creating JAR"
-                sh 'mvn clean package -DskipTests' // '-DskipTests' pour éviter de relancer les tests ici
+                script {
+                    // Utiliser le settings.xml de Jenkins s'il existe, sinon ignorer le global
+                    def settingsFile = "${env.HOME}/.m2/settings.xml"
+                    def mvnCmd = "mvn help:evaluate -Dexpression=project.version -q -DforceStdout"
+                    if (fileExists(settingsFile)) {
+                        mvnCmd = "mvn help:evaluate -Dexpression=project.version -q -DforceStdout -s ${settingsFile}"
+                    }
+                    env.APP_VERSION = sh(returnStdout: true, script: mvnCmd).trim()
+                    echo "Version du projet: ${env.APP_VERSION}"
+                }
             }
         }
 
+        // 3. Compilation et création du JAR
+        stage('Compilation & Package Maven') {
+            steps {
+                echo "Building code with Maven and creating JAR"
+                sh 'mvn clean package' // Les tests sont exécutés automatiquement
+            }
+        }
+
+        // 4. Analyse SonarQube
         stage('Analyse SonarQube') {
             steps {
                 echo "Analyse de la Qualité du Code"
@@ -45,7 +59,7 @@ pipeline {
             } 
         } 
 
-        // 3. Exécuter les tests unitaires
+        // 5. Exécuter les tests unitaires
         stage('Test') {
             steps {
                 echo "Lancement des tests unitaires JUnit"
@@ -60,17 +74,18 @@ pipeline {
             }
         }
 
+        // 6. Déploiement vers Nexus
         stage('Nexus') {
             steps {
                 echo "Déploiement vers Nexus"
-                // Déploiement vers Nexus
-                sh 'mvn deploy -DskipTests' 
+                // Les credentials sont dans /var/lib/jenkins/.m2/settings.xml
+                sh 'mvn deploy -DskipTests'
             }
         }
         
         // --- ETAPES CI/CD (DOCKER) ---
 
-        // 4. Construire l'image Docker
+        // 7. Construire l'image Docker
         stage('Build Docker Image') {
             steps {
                 echo "Construction de l'image Docker : ${DOCKER_REPO}:${APP_VERSION}"
@@ -81,7 +96,7 @@ pipeline {
             }
         }
 
-        // 5. Push vers Docker Hub
+        // 8. Push vers Docker Hub
         stage('Push to DockerHub') {
             steps {
                 echo "Push vers DockerHub"
@@ -94,10 +109,10 @@ pipeline {
             }
         }
 
-        // 6. Déploiement avec Docker Compose
+        // 9. Déploiement avec Docker Compose
         stage('Deploy with Docker Compose') {
             steps {
-                echo 'Démarrage de l\'application et de la base de données via Docker Compose'
+                echo 'Demarrage de l application et de la base de donnees via Docker Compose'
                 // Arrêter les anciens conteneurs et démarrer les nouveaux en mode detached (-d)
                 sh 'docker compose up -d --build' 
             }
