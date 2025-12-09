@@ -118,9 +118,13 @@ pipeline {
         // 9. Déploiement avec Docker Compose
         stage('Deploy with Docker Compose') {
             steps {
-                echo 'Demarrage de l application et de la base de donnees via Docker Compose'
-                // Arrêter les anciens conteneurs et démarrer les nouveaux en mode detached (-d)
-                sh 'docker compose up -d --build' 
+                echo 'Arrêt et suppression des conteneurs de l application uniquement'
+                // Arrêter uniquement les conteneurs events-app et mysql, sans toucher à Prometheus et Grafana
+                sh 'docker stop events-spring-app events-mysql || true'
+                sh 'docker rm events-spring-app events-mysql || true'
+                echo 'Démarrage de l application et de la base de données via Docker Compose'
+                // Démarrer uniquement les services nécessaires (events-app et mysql)
+                sh 'docker compose up -d --build events-app mysql' 
             }
         }
     }
