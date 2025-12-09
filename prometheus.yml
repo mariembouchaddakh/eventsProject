@@ -9,4 +9,10 @@ scrape_configs:
       - targets: ['172.21.0.5:8089']
         labels:
           application: 'events-project'
+  
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['host.docker.internal:8787']
+        labels:
+          application: 'cadvisor'
 
