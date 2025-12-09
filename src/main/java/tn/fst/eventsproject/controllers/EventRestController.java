@@ -1,6 +1,7 @@
 package tn.fst.eventsproject.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import tn.fst.eventsproject.entities.Event;
 import tn.fst.eventsproject.entities.Logistics;
@@ -33,7 +34,9 @@ public class EventRestController {
         return eventServices.addAffectLog(logistics,descriptionEvent);
     }
     @GetMapping("/getLogs/{d1}/{d2}")
-    public List<Logistics> getLogistiquesDates (@PathVariable("d1") LocalDate date_debut, @PathVariable("d2") LocalDate date_fin){
+    public List<Logistics> getLogistiquesDates (
+            @PathVariable("d1") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date_debut, 
+            @PathVariable("d2") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date_fin){
         return eventServices.getLogisticsDates(date_debut,date_fin);
     }
 }

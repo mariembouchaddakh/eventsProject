@@ -18,7 +18,7 @@ pipeline {
             steps {
                 echo "Pulling from Git"
                 // Adaptez l'URL du dépôt selon votre repository
-                git branch: 'master', url: 'https://github.com/mariembouchaddakh/eventsProject.git', 
+                git branch: 'main', url: 'https://github.com/mariembouchaddakh/eventsProject.git', 
                 credentialsId: 'git1'
             }
         }

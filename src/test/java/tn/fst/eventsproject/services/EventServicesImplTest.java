@@ -121,7 +121,6 @@ class EventServicesImplTest {
     void testAddAffectEvenParticipant_WithIdParticipant_WhenParticipantNotFound() {
         // Given
         when(participantRepository.findById(anyInt())).thenReturn(Optional.empty());
-        when(eventRepository.save(any(Event.class))).thenReturn(event);
 
         // When & Then
         assertThrows(NullPointerException.class, () -> {
@@ -129,6 +128,7 @@ class EventServicesImplTest {
         });
 
         verify(participantRepository, times(1)).findById(999);
+        verify(eventRepository, never()).save(any(Event.class));
     }
 
     @Test
@@ -178,18 +178,24 @@ class EventServicesImplTest {
     @Test
     void testAddAffectLog_WhenEventHasNoLogistics() {
         // Given
-        when(eventRepository.findByDescription(anyString())).thenReturn(event);
+        Event eventWithoutLogistics = new Event();
+        eventWithoutLogistics.setIdEvent(1);
+        eventWithoutLogistics.setDescription("Concert");
+        eventWithoutLogistics.setLogistics(null); // Explicitly set to null
+        
+        when(eventRepository.findByDescription(anyString())).thenReturn(eventWithoutLogistics);
         when(logisticsRepository.save(any(Logistics.class))).thenReturn(logistics);
-        when(eventRepository.save(any(Event.class))).thenReturn(event);
+        when(eventRepository.save(any(Event.class))).thenReturn(eventWithoutLogistics);
 
         // When
         Logistics result = eventServices.addAffectLog(logistics, "Concert");
 
         // Then
         assertNotNull(result);
-        assertTrue(event.getLogistics().contains(logistics));
+        assertNotNull(eventWithoutLogistics.getLogistics());
+        assertTrue(eventWithoutLogistics.getLogistics().contains(logistics));
         verify(eventRepository, times(1)).findByDescription("Concert");
-        verify(eventRepository, times(1)).save(event);
+        verify(eventRepository, times(1)).save(any(Event.class));
         verify(logisticsRepository, times(1)).save(logistics);
     }
 

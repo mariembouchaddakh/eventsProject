@@ -1,6 +1,7 @@
 package tn.fst.eventsproject.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +49,7 @@ class EventRestControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(eventRestController).build();
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
         participant = new Participant();
         participant.setIdPart(1);
