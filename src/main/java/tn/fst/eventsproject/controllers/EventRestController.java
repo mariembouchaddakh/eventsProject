@@ -13,6 +13,7 @@ import tn.fst.eventsproject.mappers.EventMapper;
 import tn.fst.eventsproject.services.IEventServices;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

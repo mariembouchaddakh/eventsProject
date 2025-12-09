@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    // Déclencheur automatique lors d'un push sur GitHub
+    triggers {
+        // Poll SCM toutes les minutes pour détecter les changements
+        pollSCM('H/1 * * * *')
+    }
+
     // 1. Définir l'environnement pour les étapes Docker
     environment {
         // Remplacez mariembouchaddakh par votre ID DockerHub si necessaire
