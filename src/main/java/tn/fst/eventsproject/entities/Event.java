@@ -23,7 +23,8 @@ public class Event implements Serializable {
     float cout;
     @ManyToMany(mappedBy = "events")
     Set<Participant> participants;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "event_id")
     Set<Logistics> logistics;
 
 }

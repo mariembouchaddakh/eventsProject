@@ -89,13 +89,8 @@ public class EventServicesImpl implements IEventServices{
 
         List<Logistics> logisticsList = new ArrayList<>();
         for (Event event:events){
-            if(event.getLogistics().isEmpty()){
-
-                return null;
-            }
-
-            else {
-                Set<Logistics> logisticsSet = event.getLogistics();
+            Set<Logistics> logisticsSet = event.getLogistics();
+            if(logisticsSet != null && !logisticsSet.isEmpty()){
                 for (Logistics logistics:logisticsSet){
                     if(logistics.isReserve())
                         logisticsList.add(logistics);
