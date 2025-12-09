@@ -119,14 +119,15 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 echo 'Arrêt et suppression des conteneurs de l application uniquement'
-                // Arrêter uniquement les conteneurs events-app et mysql, sans toucher à Prometheus et Grafana
-                sh 'docker stop events-spring-app events-mysql || true'
-                sh 'docker rm events-spring-app events-mysql || true'
+                // Arrêter et supprimer uniquement les conteneurs events-app et mysql
+                // Utiliser -f pour forcer l'arrêt et la suppression
+                sh 'docker stop events-spring-app events-mysql 2>/dev/null || true'
+                sh 'docker rm -f events-spring-app events-mysql 2>/dev/null || true'
+                echo 'Attente de la libération des ressources'
+                sh 'sleep 2'
                 echo 'Démarrage de l application et de la base de données'
-                // Utiliser docker compose create puis start pour éviter de créer Prometheus/Grafana
-                // Créer uniquement mysql et events-app
-                sh 'docker compose create mysql events-app || true'
-                sh 'docker compose start mysql events-app || docker compose up -d --build mysql events-app'
+                // Démarrer uniquement mysql et events-app, ignorer les erreurs pour Prometheus/Grafana
+                sh 'docker compose up -d --build mysql events-app 2>&1 | grep -v "events-prometheus\|events-grafana" || true'
             }
         }
     }
